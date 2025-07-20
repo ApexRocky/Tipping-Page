@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Apex Auto Pros - Add Tip</title>
-    <!-- 1. Re-instated the clean CDN link for the QR Code library -->
-    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <!-- Using a reliable CDN link for the QR Code library -->
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -121,34 +121,23 @@
 <body>
 
     <div class="container">
-        <!-- All HTML is the same -->
+        <!-- HTML is the same -->
         <div id="input-screen" class="screen active">
             <h1>Enter Invoice Total</h1>
             <input type="number" id="invoice-total-input" placeholder="e.g., 542.50" step="0.01" inputmode="decimal">
             <button id="set-total-btn" class="button set-total-btn">Set Total & Show Customer</button>
         </div>
-
         <div id="tip-screen" class="screen">
             <div id="total-display" class="total-display">$0.00</div>
             <h2>Add a tip?</h2>
             <div id="tip-button-container" class="button-grid">
-                <button class="button" data-tip="0.15">
-                    <div class="percentage">15%</div>
-                    <div class="amount" id="tip-15-amount">$0.00</div>
-                </button>
-                <button class="button" data-tip="0.20">
-                    <div class="percentage">20%</div>
-                    <div class="amount" id="tip-20-amount">$0.00</div>
-                </button>
-                <button class="button" data-tip="0.25">
-                    <div class="percentage">25%</div>
-                    <div class="amount" id="tip-25-amount">$0.00</div>
-                </button>
+                <button class="button" data-tip="0.15"><div class="percentage">15%</div><div class="amount" id="tip-15-amount">$0.00</div></button>
+                <button class="button" data-tip="0.20"><div class="percentage">20%</div><div class="amount" id="tip-20-amount">$0.00</div></button>
+                <button class="button" data-tip="0.25"><div class="percentage">25%</div><div class="amount" id="tip-25-amount">$0.00</div></button>
                 <button class="button full-width" data-tip="custom">Custom</button>
                 <button class="button full-width" style="background-color:#555;" data-tip="0">No tip</button>
             </div>
         </div>
-
         <div id="qr-screen" class="screen">
             <h2>Scan to Pay</h2>
             <div id="final-total-display">$0.00</div>
@@ -158,117 +147,112 @@
     </div>
 
 <script>
-    // 2. This is the crucial fix. It waits for the HTML to be ready.
     document.addEventListener('DOMContentLoaded', function() {
     
         // --- CONFIGURATION ---
-        const VENMO_USERNAME = "Ian-Stefanski"; // Your Venmo username (without the @)
-        const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png"; // The name of your Zelle QR image file
+        const VENMO_USERNAME = "Ian-Stefanski";
+        const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
 
-        // --- PRELOAD ZELLE IMAGE TO PREVENT ERRORS ---
-        const zelleImage = new Image();
-        zelleImage.src = ZELLE_QR_IMAGE_FILENAME;
-
-        // --- APPLICATION LOGIC ---
-        let baseTotal = 0;
-        const allScreens = document.querySelectorAll('.screen');
-        const inputScreen = document.getElementById('input-screen');
-        const tipScreen = document.getElementById('tip-screen');
-        const qrScreen = document.getElementById('qr-screen');
-        const totalInput = document.getElementById('invoice-total-input');
-        const totalDisplay = document.getElementById('total-display');
-        const finalTotalDisplay = document.getElementById('final-total-display');
-        const qrContainer = document.getElementById('qr-code-container');
+        // --- ELEMENT REFERENCES ---
+        const elements = {
+            inputScreen: document.getElementById('input-screen'),
+            tipScreen: document.getElementById('tip-screen'),
+            qrScreen: document.getElementById('qr-screen'),
+            totalInput: document.getElementById('invoice-total-input'),
+            totalDisplay: document.getElementById('total-display'),
+            finalTotalDisplay: document.getElementById('final-total-display'),
+            qrContainer: document.getElementById('qr-code-container'),
+            setTotalBtn: document.getElementById('set-total-btn'),
+            tipButtonContainer: document.getElementById('tip-button-container'),
+            backButton: document.getElementById('back-button'),
+            tipAmount15: document.getElementById('tip-15-amount'),
+            tipAmount20: document.getElementById('tip-20-amount'),
+            tipAmount25: document.getElementById('tip-25-amount')
+        };
         
-        // Use IDs for main buttons
-        const setTotalBtn = document.getElementById('set-total-btn');
-        const tipButtonContainer = document.getElementById('tip-button-container');
-        const backButton = document.getElementById('back-button');
+        let baseTotal = 0;
 
+        // --- FUNCTIONS ---
         function showScreen(screenToShow) {
-            allScreens.forEach(screen => screen.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             screenToShow.classList.add('active');
         }
 
         function startTipping() {
-            const inputVal = parseFloat(totalInput.value);
+            const inputVal = parseFloat(elements.totalInput.value);
             if (isNaN(inputVal) || inputVal <= 0) {
                 alert("Please enter a valid total.");
                 return;
             }
             baseTotal = inputVal;
-            totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
-            document.getElementById('tip-15-amount').innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
-            document.getElementById('tip-20-amount').innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
-            document.getElementById('tip-25-amount').innerText = `$${(baseTotal * 0.25).toFixed(2)}`;
-            showScreen(tipScreen);
+            elements.totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
+            elements.tipAmount15.innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
+            elements.tipAmount20.innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
+            elements.tipAmount25.innerText = `$${(baseTotal * 0.25).toFixed(2)}`;
+            showScreen(elements.tipScreen);
         }
 
         function selectTip(tipValue) {
             let tipAmount = 0;
             if (tipValue === 'custom') {
                 const customAmountStr = prompt("Enter custom tip amount:", "10.00");
+                if (customAmountStr === null) return;
                 const customAmount = parseFloat(customAmountStr);
-                if (customAmountStr === null || isNaN(customAmount)) {
-                    return; // User cancelled or entered invalid amount
-                }
+                if (isNaN(customAmount)) return;
                 tipAmount = customAmount;
             } else {
                 tipAmount = baseTotal * parseFloat(tipValue);
             }
             const finalTotal = baseTotal + tipAmount;
             generateQrCodes(finalTotal);
-            showScreen(qrScreen);
+            showScreen(elements.qrScreen);
         }
         
         function generateQrCodes(total) {
-            qrContainer.innerHTML = ''; 
-            finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
+            elements.qrContainer.innerHTML = ''; 
+            elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
             const size = 128;
 
-            // Venmo (Dynamic QR Code)
+            // Venmo
             try {
+                // THIS IS THE CORRECTED LINE - "¬e="
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
                 venmoBox.innerHTML = '<p>Venmo</p>';
                 const venmoQrEl = document.createElement('div');
                 venmoBox.appendChild(venmoQrEl);
-                qrContainer.appendChild(venmoBox);
-                new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
+                elements.qrContainer.appendChild(venmoBox);
+                new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size, correctLevel : QRCode.CorrectLevel.H });
             } catch (error) {
                 console.error("QR Code generation failed:", error);
-                alert("Error: Could not generate Venmo QR Code. Check internet or Venmo username.");
+                alert("Error: Could not generate Venmo QR Code.");
             }
 
-            // Zelle (Static Image)
+            // Zelle
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
-            zelleBox.innerHTML = `<p>Zelle</p>`;
-            const zelleImgEl = zelleImage.cloneNode();
-            zelleImgEl.width = size;
-            zelleImgEl.height = size;
-            zelleBox.appendChild(zelleImgEl);
-            qrContainer.appendChild(zelleBox);
+            zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
+            elements.qrContainer.appendChild(zelleBox);
         }
 
         function resetApp() {
-            totalInput.value = '';
+            elements.totalInput.value = '';
             baseTotal = 0;
-            showScreen(input-screen);
+            // THIS IS THE SECOND FIX
+            showScreen(elements.inputScreen);
         }
 
         // --- EVENT LISTENERS ---
-        setTotalBtn.addEventListener('click', startTipping);
-        backButton.addEventListener('click', resetApp);
-        tipButtonContainer.addEventListener('click', function(event) {
+        elements.setTotalBtn.addEventListener('click', startTipping);
+        elements.backButton.addEventListener('click', resetApp);
+        elements.tipButtonContainer.addEventListener('click', function(event) {
             const button = event.target.closest('button');
-            if (button && button.hasAttribute('data-tip')) {
-                selectTip(button.getAttribute('data-tip'));
+            if (button && button.dataset.tip) {
+                selectTip(button.dataset.tip);
             }
         });
-
-    }); // 3. End of the crucial DOMContentLoaded wrapper
+    });
 </script>
 
 </body>
