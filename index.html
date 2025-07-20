@@ -46,7 +46,6 @@
         .screen { display: none; }
         .screen.active { display: block; }
 
-        /* Your existing logo style for the tip screen is unchanged */
         .logo-container {
             margin-top: 30px; 
             text-align: center;
@@ -54,17 +53,44 @@
         .logo-container img {
             max-height: 200px; 
             width: auto;
-            opacity: 1; 
+            opacity: 0.7; 
         }
         
-        /* QR Code Screen Styles */
-        #qr-screen h2 { font-size: 2.0em; }
-        #final-total-display { font-size: 2.5em; font-weight: bold; }
-        #qr-code-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
-        .qr-code-box { display: flex; flex-direction: column; align-items: center; }
-        /* DELETED: The #back-button style was here */
-
-        /* Styles for the logo strip */
+        /* === NEW AND IMPROVED QR CODE SCREEN STYLES === */
+        #qr-screen .payment-header {
+            margin-bottom: 40px; /* Space below the header */
+        }
+        #qr-screen .payment-header img {
+            max-height: 80px; /* Your shop logo */
+            margin-bottom: 20px;
+        }
+        #qr-screen .payment-header .total-label {
+            font-size: 1.5em;
+            font-weight: 500;
+            color: #666;
+        }
+        #qr-screen #final-total-display {
+            font-size: 5em; /* The most prominent element */
+            font-weight: bold;
+            line-height: 1;
+        }
+        #qr-code-container { 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; /* Aligns items with different heights nicely */
+            gap: 60px; 
+            margin-top: 30px; 
+        }
+        .qr-code-box { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .qr-code-box .payment-logo {
+            height: 30px; /* Uniform height for Venmo/Zelle logos */
+            margin-bottom: 15px;
+        }
+        
         .footer-logo-strip {
             margin-top: 50px; 
             display: flex;
@@ -73,9 +99,10 @@
             gap: 30px; 
         }
         .footer-logo-strip img {
-            max-height: 16vh; 
+            max-height: 8vh; 
             opacity: 1;      
         }
+        /* === END OF NEW STYLES === */
 
     </style>
 </head>
@@ -92,7 +119,7 @@
         <div id="tip-screen" class="screen">
             <div class="tip-header">
                 <div id="total-display">$0.00</div>
-                <h2>Add a Tip?</h2>
+                <h2>Add a Tip</h2>
             </div>
             <div id="tip-button-container">
                 <div class="button-grid">
@@ -108,12 +135,14 @@
             </div>
         </div>
         
-        <!-- Screen 3: Scan to Pay -->
+        <!-- Screen 3: Scan to Pay (Redesigned) -->
         <div id="qr-screen" class="screen">
-            <h2>Scan to Pay</h2>
-            <div id="final-total-display">$0.00</div>
+            <div class="payment-header">
+                <img src="apex-logo.png" alt="Apex Auto Pros Logo">
+                <div class="total-label">Total to Send</div>
+                <div id="final-total-display">$0.00</div>
+            </div>
             <div id="qr-code-container"></div>
-            <!-- DELETED: The <button id="back-button"> was here -->
             <div class="footer-logo-strip">
                 <img src="chase-logo.png" alt="Chase Bank">
                 <img src="bofa-logo.png" alt="Bank of America">
@@ -138,7 +167,6 @@
             qrContainer: document.getElementById('qr-code-container'),
             setTotalBtn: document.getElementById('set-total-btn'),
             tipButtonContainer: document.getElementById('tip-button-container'),
-            // DELETED: The backButton reference was here
             tipAmounts: { '15': document.getElementById('tip-15-amount'), '20': document.getElementById('tip-20-amount'), '25': document.getElementById('tip-25-amount') }
         };
 
@@ -178,30 +206,36 @@
         
         function generateQrCodes(total) {
             elements.qrContainer.innerHTML = ''; 
-            elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
+            elements.finalTotalDisplay.innerText = `$${total.toFixed(2)}`;
             const size = 160;
 
+            // Venmo QR Code with Logo
             try {
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
-                venmoBox.innerHTML = '<p>Venmo</p>';
+                // Using the Venmo logo as the label
+                venmoBox.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
                 const venmoQrEl = document.createElement('div');
                 venmoBox.appendChild(venmoQrEl);
                 elements.qrContainer.appendChild(venmoBox);
                 new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
             } catch (error) { console.error(error); }
 
+            // Zelle QR Code with Logo
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
-            zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
+            // Using a simple text label for Zelle as it has no official logo
+            zelleBox.innerHTML = '<p style="font-size: 1.5em; font-weight: 600; color: #333; margin-bottom: 15px;">Zelle</p>';
+            const zelleQrImg = document.createElement('img');
+            zelleQrImg.src = ZELLE_QR_IMAGE_FILENAME;
+            zelleQrImg.width = size;
+            zelleQrImg.height = size;
+            zelleBox.appendChild(zelleQrImg);
             elements.qrContainer.appendChild(zelleBox);
         }
 
-        // DELETED: The resetApp function was here
-        
         elements.setTotalBtn.addEventListener('click', startTipping);
-        // DELETED: The event listener for the backButton was here
         elements.tipButtonContainer.addEventListener('click', function(event) {
             const button = event.target.closest('button');
             if (button && button.dataset.tip) {
