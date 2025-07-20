@@ -64,18 +64,18 @@
         .qr-code-box { display: flex; flex-direction: column; align-items: center; }
         #back-button { margin-top: 40px; background-color: #6c757d; }
 
-        /* === NEW STYLING FOR THE LOGO STRIP ON THE PAYMENT SCREEN === */
+        /* === NEW AND CORRECTED STYLES FOR LOGO STRIP === */
         .footer-logo-strip {
-            margin-top: 50px; /* Large space below the 'Start New Payment' button */
+            margin-top: 50px; 
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 30px; /* Space between each logo */
+            gap: 30px; 
         }
         .footer-logo-strip img {
-            max-height: 35px; /* A uniform, professional height for all logos */
-            opacity: 0.6;
-            filter: grayscale(100%); /* Subtle, trusted appearance */
+            max-height: 8vh; /* NEW: Larger, responsive logo size */
+            opacity: 1;      /* NEW: Full color logos */
+            /* Removed the grayscale filter */
         }
         /* === END OF NEW STYLING === */
 
@@ -116,9 +116,9 @@
             <div id="final-total-display">$0.00</div>
             <div id="qr-code-container"></div>
             <button id="back-button" class="button full-width">Start New Payment</button>
-            <!-- === NEW HTML FOR THE LOGO STRIP === -->
+            <!-- === NEW AND CORRECTED HTML FOR LOGO STRIP === -->
             <div class="footer-logo-strip">
-                <img src="apex-logo.png" alt="Apex Auto Pros">
+                <!-- Apex logo is now removed from this section -->
                 <img src="venmo-logo.png" alt="Venmo">
                 <img src="chase-logo.png" alt="Chase Bank">
                 <img src="bofa-logo.png" alt="Bank of America">
@@ -221,4 +221,4 @@
     });
 </script>
 </body>
-</html>
+</html>```
