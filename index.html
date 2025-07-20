@@ -63,19 +63,15 @@
         #qr-screen #final-total-display { font-size: 4em; font-weight: bold; line-height: 1; }
         #qr-code-container { display: flex; justify-content: center; align-items: flex-start; gap: 60px; margin-top: 30px; }
         .qr-code-box { display: flex; flex-direction: column; align-items: center; }
-        
-        /* === NEW AND CORRECTED STYLES FOR ALIGNMENT === */
-        .logo-wrapper {
-            height: 90px; /* A fixed height container for all logos */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+        .logo-wrapper { height: 90px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .qr-code-box .payment-logo { height: 60px; }
         .qr-code-box .zelle-payment-logo { height: 90px; }
-        /* === END OF NEW STYLES === */
         
+        /* === NEW RULE TO CONTROL THE ZELLE LOGO'S MARGIN === */
+        .zelle-logo-wrapper {
+            margin-bottom: 5px; /* <-- EDIT THIS to change the space below the Zelle logo */
+        }
+
         .footer-logo-strip {
             margin-top: 50px; 
             display: flex;
@@ -201,7 +197,6 @@
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
                 
-                // === NEW: Logo placed in a fixed-height wrapper ===
                 const logoWrapper = document.createElement('div');
                 logoWrapper.className = 'logo-wrapper';
                 logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
@@ -217,9 +212,9 @@
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
             
-            // === NEW: Logo placed in a fixed-height wrapper ===
             const zelleLogoWrapper = document.createElement('div');
-            zelleLogoWrapper.className = 'logo-wrapper';
+            // === NEW: Added a specific class for independent styling ===
+            zelleLogoWrapper.className = 'logo-wrapper zelle-logo-wrapper';
             zelleLogoWrapper.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo zelle-payment-logo">';
             zelleBox.appendChild(zelleLogoWrapper);
             
