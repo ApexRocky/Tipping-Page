@@ -62,9 +62,9 @@
         #final-total-display { font-size: 2.5em; font-weight: bold; }
         #qr-code-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
         .qr-code-box { display: flex; flex-direction: column; align-items: center; }
-        #back-button { margin-top: 40px; background-color: #6c757d; }
+        /* DELETED: The #back-button style was here */
 
-        /* === NEW AND CORRECTED STYLES FOR LOGO STRIP === */
+        /* Styles for the logo strip */
         .footer-logo-strip {
             margin-top: 50px; 
             display: flex;
@@ -73,11 +73,9 @@
             gap: 30px; 
         }
         .footer-logo-strip img {
-            max-height: 16vh; /* NEW: Larger, responsive logo size */
-            opacity: 1;      /* NEW: Full color logos */
-            /* Removed the grayscale filter */
+            max-height: 16vh; 
+            opacity: 1;      
         }
-        /* === END OF NEW STYLING === */
 
     </style>
 </head>
@@ -115,15 +113,12 @@
             <h2>Scan to Pay</h2>
             <div id="final-total-display">$0.00</div>
             <div id="qr-code-container"></div>
-            <button id="back-button" class="button full-width">Start New Payment</button>
-            <!-- === NEW AND CORRECTED HTML FOR LOGO STRIP === -->
+            <!-- DELETED: The <button id="back-button"> was here -->
             <div class="footer-logo-strip">
-                <!-- Apex logo is now removed from this section -->
                 <img src="chase-logo.png" alt="Chase Bank">
                 <img src="bofa-logo.png" alt="Bank of America">
                 <img src="wells-fargo-logo.png" alt="Wells Fargo">
             </div>
-            <!-- === END OF NEW HTML === -->
         </div>
     </div>
 
@@ -143,7 +138,7 @@
             qrContainer: document.getElementById('qr-code-container'),
             setTotalBtn: document.getElementById('set-total-btn'),
             tipButtonContainer: document.getElementById('tip-button-container'),
-            backButton: document.getElementById('back-button'),
+            // DELETED: The backButton reference was here
             tipAmounts: { '15': document.getElementById('tip-15-amount'), '20': document.getElementById('tip-20-amount'), '25': document.getElementById('tip-25-amount') }
         };
 
@@ -203,14 +198,10 @@
             elements.qrContainer.appendChild(zelleBox);
         }
 
-        function resetApp() {
-            elements.totalInput.value = '';
-            baseTotal = 0;
-            showScreen(elements.inputScreen);
-        }
-
+        // DELETED: The resetApp function was here
+        
         elements.setTotalBtn.addEventListener('click', startTipping);
-        elements.backButton.addEventListener('click', resetApp);
+        // DELETED: The event listener for the backButton was here
         elements.tipButtonContainer.addEventListener('click', function(event) {
             const button = event.target.closest('button');
             if (button && button.dataset.tip) {
@@ -220,4 +211,4 @@
     });
 </script>
 </body>
-</html>```
+</html>
