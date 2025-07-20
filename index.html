@@ -33,25 +33,10 @@
         #input-screen input { font-size: 3em; width: 100%; padding: 20px; box-sizing: border-box; text-align: center; border: 2px solid #ccc; border-radius: 12px; margin-bottom: 30px; }
         #input-screen .button { width: 100%; padding: 25px; font-size: 1.5em; }
         
-        /* Tip Screen Styles */
-        #tip-screen .tip-header {
-            margin-bottom: 80px; 
-        }
-        #tip-screen #total-display {
-            font-size: 5em;      
-            line-height: 1;      
-            font-weight: bold;
-            color: #000;
-            margin: 0;           
-        }
-        #tip-screen h2 {
-            font-size: 2.2em;    
-            font-weight: 500;    
-            color: #555;
-            margin-top: 15px;    
-        }
-        
-        /* Button styles are unchanged */
+        /* Tip Screen Styles are unchanged */
+        #tip-screen .tip-header { margin-bottom: 80px; }
+        #tip-screen #total-display { font-size: 5em; line-height: 1; font-weight: bold; color: #000; margin: 0; }
+        #tip-screen h2 { font-size: 2.2em; font-weight: 500; color: #555; margin-top: 15px; }
         .button-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         .button { background-color: #007aff; color: white; border: none; border-radius: 12px; padding: 25px 15px; font-size: 1.5em; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
         .button.full-width { display: block; width: 100%; margin-bottom: 20px; }
@@ -61,23 +46,38 @@
         .screen { display: none; }
         .screen.active { display: block; }
 
-        /* === NEW: Logo Styling === */
+        /* Your existing logo style for the tip screen is unchanged */
         .logo-container {
-            margin-top: 40px; /* Space above the logo */
+            margin-top: 40px; 
             text-align: center;
         }
         .logo-container img {
-            max-height: 300px; /* Controls the size of the logo */
+            max-height: 300px; 
             width: auto;
-            opacity: 0.7; /* Makes it subtle and professional */
+            opacity: 0.7; 
         }
-        /* === END OF NEW STYLING === */
         
         /* QR Code Screen Styles */
         #qr-screen h2 { font-size: 2.5em; }
         #final-total-display { font-size: 3.5em; font-weight: bold; }
         #qr-code-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
+        .qr-code-box { display: flex; flex-direction: column; align-items: center; }
         #back-button { margin-top: 40px; background-color: #6c757d; }
+
+        /* === NEW STYLING FOR THE LOGO STRIP ON THE PAYMENT SCREEN === */
+        .footer-logo-strip {
+            margin-top: 50px; /* Large space below the 'Start New Payment' button */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px; /* Space between each logo */
+        }
+        .footer-logo-strip img {
+            max-height: 35px; /* A uniform, professional height for all logos */
+            opacity: 0.6;
+            filter: grayscale(100%); /* Subtle, trusted appearance */
+        }
+        /* === END OF NEW STYLING === */
 
     </style>
 </head>
@@ -105,11 +105,9 @@
                 <button class="button full-width" data-tip="custom">Custom Tip Amount</button>
                 <button class="button full-width" data-tip="0">No Tip</button>
             </div>
-            <!-- === NEW: Logo Container === -->
             <div class="logo-container">
                 <img src="apex-logo.png" alt="Apex Auto Pros Logo">
             </div>
-            <!-- === END OF NEW HTML === -->
         </div>
         
         <!-- Screen 3: Scan to Pay -->
@@ -118,6 +116,15 @@
             <div id="final-total-display">$0.00</div>
             <div id="qr-code-container"></div>
             <button id="back-button" class="button full-width">Start New Payment</button>
+            <!-- === NEW HTML FOR THE LOGO STRIP === -->
+            <div class="footer-logo-strip">
+                <img src="apex-logo.png" alt="Apex Auto Pros">
+                <img src="venmo-logo.png" alt="Venmo">
+                <img src="chase-logo.png" alt="Chase Bank">
+                <img src="bofa-logo.png" alt="Bank of America">
+                <img src="wells-fargo-logo.png" alt="Wells Fargo">
+            </div>
+            <!-- === END OF NEW HTML === -->
         </div>
     </div>
 
@@ -138,11 +145,7 @@
             setTotalBtn: document.getElementById('set-total-btn'),
             tipButtonContainer: document.getElementById('tip-button-container'),
             backButton: document.getElementById('back-button'),
-            tipAmounts: {
-                '15': document.getElementById('tip-15-amount'),
-                '20': document.getElementById('tip-20-amount'),
-                '25': document.getElementById('tip-25-amount'),
-            }
+            tipAmounts: { '15': document.getElementById('tip-15-amount'), '20': document.getElementById('tip-20-amount'), '25': document.getElementById('tip-25-amount') }
         };
 
         function showScreen(screenToShow) {
