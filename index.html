@@ -56,40 +56,14 @@
             opacity: 0.7; 
         }
         
-        /* === NEW AND IMPROVED QR CODE SCREEN STYLES === */
-        #qr-screen .payment-header {
-            margin-bottom: 40px; /* Space below the header */
-        }
-        #qr-screen .payment-header img {
-            max-height: 80px; /* Your shop logo */
-            margin-bottom: 20px;
-        }
-        #qr-screen .payment-header .total-label {
-            font-size: 1.5em;
-            font-weight: 500;
-            color: #666;
-        }
-        #qr-screen #final-total-display {
-            font-size: 5em; /* The most prominent element */
-            font-weight: bold;
-            line-height: 1;
-        }
-        #qr-code-container { 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; /* Aligns items with different heights nicely */
-            gap: 60px; 
-            margin-top: 30px; 
-        }
-        .qr-code-box { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
-        .qr-code-box .payment-logo {
-            height: 30px; /* Uniform height for Venmo/Zelle logos */
-            margin-bottom: 15px;
-        }
+        /* QR Code Screen Styles are unchanged */
+        #qr-screen .payment-header { margin-bottom: 40px; }
+        #qr-screen .payment-header img { max-height: 80px; margin-bottom: 20px; }
+        #qr-screen .payment-header .total-label { font-size: 1.5em; font-weight: 500; color: #666; }
+        #qr-screen #final-total-display { font-size: 5em; font-weight: bold; line-height: 1; }
+        #qr-code-container { display: flex; justify-content: center; align-items: flex-start; gap: 60px; margin-top: 30px; }
+        .qr-code-box { display: flex; flex-direction: column; align-items: center; }
+        .qr-code-box .payment-logo { height: 30px; margin-bottom: 15px; }
         
         .footer-logo-strip {
             margin-top: 50px; 
@@ -102,7 +76,6 @@
             max-height: 8vh; 
             opacity: 1;      
         }
-        /* === END OF NEW STYLES === */
 
     </style>
 </head>
@@ -135,7 +108,7 @@
             </div>
         </div>
         
-        <!-- Screen 3: Scan to Pay (Redesigned) -->
+        <!-- Screen 3: Scan to Pay -->
         <div id="qr-screen" class="screen">
             <div class="payment-header">
                 <img src="apex-logo.png" alt="Apex Auto Pros Logo">
@@ -214,7 +187,6 @@
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
-                // Using the Venmo logo as the label
                 venmoBox.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
                 const venmoQrEl = document.createElement('div');
                 venmoBox.appendChild(venmoQrEl);
@@ -222,17 +194,19 @@
                 new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
             } catch (error) { console.error(error); }
 
+            // === THIS IS THE CORRECTED CODE FOR THE ZELLE LOGO ===
             // Zelle QR Code with Logo
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
-            // Using a simple text label for Zelle as it has no official logo
-            zelleBox.innerHTML = '<p style="font-size: 1.5em; font-weight: 600; color: #333; margin-bottom: 15px;">Zelle</p>';
+            // Using the zelle-logo.png file as the label
+            zelleBox.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo">';
             const zelleQrImg = document.createElement('img');
             zelleQrImg.src = ZELLE_QR_IMAGE_FILENAME;
             zelleQrImg.width = size;
             zelleQrImg.height = size;
             zelleBox.appendChild(zelleQrImg);
             elements.qrContainer.appendChild(zelleBox);
+            // === END OF CORRECTION ===
         }
 
         elements.setTotalBtn.addEventListener('click', startTipping);
