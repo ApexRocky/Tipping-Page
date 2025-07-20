@@ -205,9 +205,10 @@
             elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
             const size = 128;
 
-            // Venmo
+            // Venmo QR Code (Simplified to a static profile link)
             try {
-                const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
+                // *** THIS IS THE SIMPLIFIED CODE ***
+                const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
                 venmoBox.innerHTML = '<p>Venmo</p>';
@@ -219,17 +220,13 @@
                     text: venmoUrl,
                     width: size,
                     height: size,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    // *** This is the critical fix for the "code length overflow" error ***
-                    correctLevel: QRCode.CorrectLevel.M
                 });
             } catch (error) {
-                console.error("Venmo QR Code generation failed:", error);
+                console.error("QR Code generation failed:", error);
                 alert("An error occurred creating the Venmo QR code.");
             }
 
-            // Zelle
+            // Zelle QR Code
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
             zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
