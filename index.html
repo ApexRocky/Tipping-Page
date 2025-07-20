@@ -33,18 +33,21 @@
         #input-screen input { font-size: 3em; width: 100%; padding: 20px; box-sizing: border-box; text-align: center; border: 2px solid #ccc; border-radius: 12px; margin-bottom: 30px; }
         #input-screen .button { width: 100%; padding: 25px; font-size: 1.5em; }
         
-        /* === NEW CHANGES ARE HERE === */
+        /* === NEW AND CORRECTED STYLES FOR THE TIP SCREEN HEADER === */
+        #tip-screen .tip-header {
+            margin-bottom: 80px; /* Creates the large gap you wanted */
+        }
         #tip-screen .total-display {
-            font-size: 2.5em; /* CORRECTED: Same size as h2 */
+            font-size: 5em;      /* Makes the dollar amount large and dominant */
             font-weight: bold;
             color: #000;
-            margin-bottom: 100px; /* CORRECTED: Increased space to push it to the top */
+            margin: 0;           /* Resets any default spacing */
         }
         #tip-screen h2 {
-            font-size: 2.5em; /* Same size as total for visual balance */
-            font-weight: bold;
-            margin: 0 0 35px 0;
-            color: #333;
+            font-size: 2.2em;    /* Smaller sub-header text */
+            font-weight: 500;    /* Less bold */
+            color: #555;
+            margin-top: 15px;    /* Space between total and this text */
         }
         /* === END OF NEW CHANGES === */
 
@@ -64,9 +67,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
-        }
-        .button:active {
-            background-color: #0056b3;
         }
         .button.full-width {
             display: block;
@@ -93,8 +93,6 @@
         #qr-screen h2 { font-size: 2.5em; }
         #final-total-display { font-size: 3.5em; font-weight: bold; }
         #qr-code-container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
-        .qr-code-box { display: flex; flex-direction: column; align-items: center; }
-        .qr-code-box canvas, .qr-code-box img { border-radius: 8px; }
         .qr-code-box p { margin-top: 15px; font-size: 1.5em; font-weight: 600; color: #333; }
         #back-button { margin-top: 40px; background-color: #6c757d; }
 
@@ -109,18 +107,20 @@
             <button id="set-total-btn" class="button full-width">Set Total & Show Customer</button>
         </div>
 
-        <!-- Screen 2: Add a Tip -->
+        <!-- Screen 2: Add a Tip (Restructured HTML) -->
         <div id="tip-screen" class="screen">
-            <div id="total-display">$0.00</div>
-            <h2>Add a tip?</h2>
+            <div class="tip-header">
+                <div id="total-display">$0.00</div>
+                <h2>Add a Tip</h2>
+            </div>
             <div id="tip-button-container">
                 <div class="button-grid">
                     <button class="button" data-tip="0.15"><span class="percentage">15%</span><span class="amount" id="tip-15-amount">$0.00</span></button>
                     <button class="button" data-tip="0.20"><span class="percentage">20%</span><span class="amount" id="tip-20-amount">$0.00</span></button>
                     <button class="button" data-tip="0.25"><span class="percentage">25%</span><span class="amount" id="tip-25-amount">$0.00</span></button>
                 </div>
-                <button class="button full-width" data-tip="custom">Custom</button>
-                <button class="button full-width" data-tip="0">No tip</button>
+                <button class="button full-width" data-tip="custom">Custom Tip Amount</button>
+                <button class="button full-width" data-tip="0">No Tip</button>
             </div>
         </div>
         
@@ -135,7 +135,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- CONFIGURATION ---
         const VENMO_USERNAME = "Ian-Stefanski";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
         
@@ -197,7 +196,6 @@
             elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
             const size = 160;
 
-            // Venmo
             try {
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
                 const venmoBox = document.createElement('div');
@@ -206,17 +204,9 @@
                 const venmoQrEl = document.createElement('div');
                 venmoBox.appendChild(venmoQrEl);
                 elements.qrContainer.appendChild(venmoBox);
-                
-                new QRCode(venmoQrEl, {
-                    text: venmoUrl,
-                    width: size,
-                    height: size,
-                });
-            } catch (error) {
-                console.error("Venmo QR Code generation failed:", error);
-            }
+                new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
+            } catch (error) { console.error(error); }
 
-            // Zelle
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
             zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
