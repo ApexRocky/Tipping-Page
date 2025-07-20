@@ -163,14 +163,16 @@
 
 <script>
     // --- CONFIGURATION ---
-    // !!! IMPORTANT: EDIT THESE VALUES !!!
-    const VENMO_USERNAME = "YourVenmoUsername"; // Replace with your Venmo username
-    const CASH_APP_CASHTAG = "$YourCashtag"; // Replace with your Cash App cashtag (including the $)
+    const VENMO_USERNAME = "Ian-Stefanski"; // Replace with your Venmo username
     const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png"; // The name of your Zelle QR image file
+
+    // --- PRELOAD ZELLE IMAGE TO PREVENT ERRORS ---
+    const zelleImage = new Image();
+    zelleImage.src = ZELLE_QR_IMAGE_FILENAME;
 
     // --- APPLICATION LOGIC ---
     let baseTotal = 0;
-    const allScreens = document.querySelectorAll('.screen');
+    const allScreens = Array.from(document.querySelectorAll('.screen'));
     const inputScreen = document.getElementById('input-screen');
     const tipScreen = document.getElementById('tip-screen');
     const qrScreen = document.getElementById('qr-screen');
@@ -191,15 +193,10 @@
             return;
         }
         baseTotal = inputVal;
-        
-        // Update display total
         totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
-        
-        // Update tip suggestion amounts
         document.getElementById('tip-15-amount').innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
         document.getElementById('tip-20-amount').innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
         document.getElementById('tip-25-amount').innerText = `$${(baseTotal * 0.25).toFixed(2)}`;
-        
         showScreen(tipScreen);
     }
 
@@ -208,48 +205,45 @@
         if (tip === 'custom') {
             const customAmount = prompt("Enter custom tip amount:", "10.00");
             if (customAmount === null || isNaN(parseFloat(customAmount))) {
-                return; // User cancelled or entered invalid amount
+                return;
             }
             tipAmount = parseFloat(customAmount);
         } else {
             tipAmount = baseTotal * tip;
         }
-
         const finalTotal = baseTotal + tipAmount;
         generateQrCodes(finalTotal);
         showScreen(qrScreen);
     }
     
     function generateQrCodes(total) {
-        qrContainer.innerHTML = ''; // Clear old QR codes
+        qrContainer.innerHTML = ''; 
         finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
-
         const size = 128;
 
-        // Venmo
-        const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
-        const venmoBox = document.createElement('div');
-        venmoBox.className = 'qr-code-box';
-        venmoBox.innerHTML = '<p>Venmo</p>';
-        const venmoQrEl = document.createElement('div');
-        venmoBox.appendChild(venmoQrEl);
-        qrContainer.appendChild(venmoBox);
-        new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
-
-        // Cash App
-        const cashAppUrl = `https://cash.app/${CASH_APP_CASHTAG}/${total.toFixed(2)}`;
-        const cashAppBox = document.createElement('div');
-        cashAppBox.className = 'qr-code-box';
-        cashAppBox.innerHTML = '<p>Cash App</p>';
-        const cashAppQrEl = document.createElement('div');
-        cashAppBox.appendChild(cashAppQrEl);
-        qrContainer.appendChild(cashAppBox);
-        new QRCode(cashAppQrEl, { text: cashAppUrl, width: size, height: size });
+        try {
+            // Venmo (Dynamic QR Code)
+            const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
+            const venmoBox = document.createElement('div');
+            venmoBox.className = 'qr-code-box';
+            venmoBox.innerHTML = '<p>Venmo</p>';
+            const venmoQrEl = document.createElement('div');
+            venmoBox.appendChild(venmoQrEl);
+            qrContainer.appendChild(venmoBox);
+            new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
+        } catch (error) {
+            console.error("QR Code generation failed:", error);
+            alert("Error: Could not generate dynamic QR Code. Please check internet connection.");
+        }
 
         // Zelle (Static Image)
         const zelleBox = document.createElement('div');
         zelleBox.className = 'qr-code-box';
-        zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
+        zelleBox.innerHTML = `<p>Zelle</p>`;
+        const zelleImgEl = zelleImage.cloneNode();
+        zelleImgEl.width = size;
+        zelleImgEl.height = size;
+        zelleBox.appendChild(zelleImgEl);
         qrContainer.appendChild(zelleBox);
     }
 
