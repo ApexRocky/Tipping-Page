@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Apex Auto Pros - Add Tip</title>
+    <!-- This is the library that generates QR codes -->
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent; /* Removes blue highlight on tap */
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            margin: 0 0 20px 0;
+            color: #1c1c1e;
+        }
+        .total-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 25px;
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        .button {
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 20px 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .button:active {
+            background-color: #0056b3;
+        }
+        .button.full-width {
+            grid-column: 1 / -1;
+        }
+        .percentage {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+        }
+        .amount {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        .screen {
+            display: none; /* All screens are hidden by default */
+        }
+        .screen.active {
+            display: block; /* The active screen is shown */
+        }
+        input[type="number"] {
+            font-size: 2em;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .set-total-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.2em;
+        }
+        #qr-code-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .qr-code-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .qr-code-box canvas, .qr-code-box img {
+            border: 1px solid #eee;
+        }
+        .qr-code-box p {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+        #final-total-display {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        #back-button {
+            margin-top: 20px;
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SCREEN 1: EMPLOYEE ENTERS TOTAL -->
+        <div id="input-screen" class="screen active">
+            <h1>Enter Invoice Total</h1>
+            <input type="number" id="invoice-total-input" placeholder="e.g., 542.50" step="0.01" inputmode="decimal">
+            <button class="button set-total-btn" onclick="startTipping()">Set Total & Show Customer</button>
+        </div>
+
+        <!-- SCREEN 2: CUSTOMER ADDS TIP -->
+        <div id="tip-screen" class="screen">
+            <div id="total-display" class="total-display">$0.00</div>
+            <h2>Add a tip?</h2>
+            <div class="button-grid">
+                <button class="button" onclick="selectTip(0.15)">
+                    <div class="percentage">15%</div>
+                    <div class="amount" id="tip-15-amount">$0.00</div>
+                </button>
+                <button class="button" onclick="selectTip(0.20)">
+                    <div class="percentage">20%</div>
+                    <div class="amount" id="tip-20-amount">$0.00</div>
+                </button>
+                <button class="button" onclick="selectTip(0.25)">
+                    <div class="percentage">25%</div>
+                    <div class="amount" id="tip-25-amount">$0.00</div>
+                </button>
+                <button class="button full-width" onclick="selectTip('custom')">Custom</button>
+                <button class="button full-width" style="background-color:#555;" onclick="selectTip(0)">No tip</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: SHOW QR CODES -->
+        <div id="qr-screen" class="screen">
+            <h2>Scan to Pay</h2>
+            <div id="final-total-display">$0.00</div>
+            <div id="qr-code-container">
+                <!-- QR Codes will be generated here -->
+            </div>
+            <button id="back-button" class="button full-width" onclick="resetApp()">Start New Payment</button>
+        </div>
+    </div>
+
+<script>
+    // --- CONFIGURATION ---
+    // !!! IMPORTANT: EDIT THESE VALUES !!!
+    const VENMO_USERNAME = "YourVenmoUsername"; // Replace with your Venmo username
+    const CASH_APP_CASHTAG = "$YourCashtag"; // Replace with your Cash App cashtag (including the $)
+    const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png"; // The name of your Zelle QR image file
+
+    // --- APPLICATION LOGIC ---
+    let baseTotal = 0;
+    const allScreens = document.querySelectorAll('.screen');
+    const inputScreen = document.getElementById('input-screen');
+    const tipScreen = document.getElementById('tip-screen');
+    const qrScreen = document.getElementById('qr-screen');
+    const totalInput = document.getElementById('invoice-total-input');
+    const totalDisplay = document.getElementById('total-display');
+    const finalTotalDisplay = document.getElementById('final-total-display');
+    const qrContainer = document.getElementById('qr-code-container');
+
+    function showScreen(screenToShow) {
+        allScreens.forEach(screen => screen.classList.remove('active'));
+        screenToShow.classList.add('active');
+    }
+
+    function startTipping() {
+        const inputVal = parseFloat(totalInput.value);
+        if (isNaN(inputVal) || inputVal <= 0) {
+            alert("Please enter a valid total.");
+            return;
+        }
+        baseTotal = inputVal;
+        
+        // Update display total
+        totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
+        
+        // Update tip suggestion amounts
+        document.getElementById('tip-15-amount').innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
+        document.getElementById('tip-20-amount').innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
+        document.getElementById('tip-25-amount').innerText = `$${(baseTotal * 0.25).toFixed(2)}`;
+        
+        showScreen(tipScreen);
+    }
+
+    function selectTip(tip) {
+        let tipAmount = 0;
+        if (tip === 'custom') {
+            const customAmount = prompt("Enter custom tip amount:", "10.00");
+            if (customAmount === null || isNaN(parseFloat(customAmount))) {
+                return; // User cancelled or entered invalid amount
+            }
+            tipAmount = parseFloat(customAmount);
+        } else {
+            tipAmount = baseTotal * tip;
+        }
+
+        const finalTotal = baseTotal + tipAmount;
+        generateQrCodes(finalTotal);
+        showScreen(qrScreen);
+    }
+    
+    function generateQrCodes(total) {
+        qrContainer.innerHTML = ''; // Clear old QR codes
+        finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
+
+        const size = 128;
+
+        // Venmo
+        const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
+        const venmoBox = document.createElement('div');
+        venmoBox.className = 'qr-code-box';
+        venmoBox.innerHTML = '<p>Venmo</p>';
+        const venmoQrEl = document.createElement('div');
+        venmoBox.appendChild(venmoQrEl);
+        qrContainer.appendChild(venmoBox);
+        new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
+
+        // Cash App
+        const cashAppUrl = `https://cash.app/${CASH_APP_CASHTAG}/${total.toFixed(2)}`;
+        const cashAppBox = document.createElement('div');
+        cashAppBox.className = 'qr-code-box';
+        cashAppBox.innerHTML = '<p>Cash App</p>';
+        const cashAppQrEl = document.createElement('div');
+        cashAppBox.appendChild(cashAppQrEl);
+        qrContainer.appendChild(cashAppBox);
+        new QRCode(cashAppQrEl, { text: cashAppUrl, width: size, height: size });
+
+        // Zelle (Static Image)
+        const zelleBox = document.createElement('div');
+        zelleBox.className = 'qr-code-box';
+        zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
+        qrContainer.appendChild(zelleBox);
+    }
+
+    function resetApp() {
+        totalInput.value = '';
+        baseTotal = 0;
+        showScreen(inputScreen);
+    }
+</script>
+
+</body>
+</html>
