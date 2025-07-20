@@ -33,13 +33,12 @@
         #input-screen input { font-size: 3em; width: 100%; padding: 20px; box-sizing: border-box; text-align: center; border: 2px solid #ccc; border-radius: 12px; margin-bottom: 30px; }
         #input-screen .button { width: 100%; padding: 25px; font-size: 1.5em; }
         
-        /* === THIS IS THE CORRECTED CSS SELECTOR === */
+        /* === THIS IS THE FINAL FONT SIZE ADJUSTMENT === */
         #tip-screen .tip-header {
             margin-bottom: 80px; 
         }
-        /* The selector now correctly uses a hash # for the ID */
         #tip-screen #total-display {
-            font-size: 12em;     
+            font-size: 5em;      /* Reduced to a balanced, prominent size */
             line-height: 1;      
             font-weight: bold;
             color: #000;
@@ -51,7 +50,7 @@
             color: #555;
             margin-top: 15px;    
         }
-        /* === END OF CORRECTION === */
+        /* === END OF CHANGE === */
 
         .button-grid {
             display: grid;
@@ -111,7 +110,6 @@
         <!-- Screen 2: Add a Tip -->
         <div id="tip-screen" class="screen">
             <div class="tip-header">
-                <!-- This element has id="total-display" -->
                 <div id="total-display">$0.00</div>
                 <h2>Add a Tip</h2>
             </div>
