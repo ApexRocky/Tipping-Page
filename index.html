@@ -22,29 +22,32 @@
         }
         .container {
             width: 100%;
-            max-width: 70vw; /* NEW: Responsive width for tablets */
+            max-width: 70vw; /* Responsive width for tablets */
             text-align: center;
             box-sizing: border-box;
             padding: 20px;
         }
-        /* First screen styles remain unchanged */
+        
+        /* First screen styles are unchanged */
         #input-screen h1 { font-size: 2.5em; font-weight: 600; }
         #input-screen input { font-size: 3em; width: 100%; padding: 20px; box-sizing: border-box; text-align: center; border: 2px solid #ccc; border-radius: 12px; margin-bottom: 30px; }
         #input-screen .button { width: 100%; padding: 25px; font-size: 1.5em; }
         
-        /* Redesigned Tip Screen */
+        /* === NEW CHANGES ARE HERE === */
         #tip-screen .total-display {
-            font-size: 2.5em; /* NEW: Matches size of h2 */
+            font-size: 2.5em; /* CORRECTED: Same size as h2 */
             font-weight: bold;
             color: #000;
-            margin-bottom: 80px; /* NEW: Pushes the total to the top, away from other content */
+            margin-bottom: 100px; /* CORRECTED: Increased space to push it to the top */
         }
         #tip-screen h2 {
-            font-size: 2.5em; /* NEW: Matches size of the total */
+            font-size: 2.5em; /* Same size as total for visual balance */
             font-weight: bold;
             margin: 0 0 35px 0;
             color: #333;
         }
+        /* === END OF NEW CHANGES === */
+
         .button-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
