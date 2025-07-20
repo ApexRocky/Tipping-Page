@@ -53,17 +53,28 @@
         .logo-container img {
             max-height: 200px; 
             width: auto;
-            opacity: 1; 
+            opacity: 0.7; 
         }
         
-        /* QR Code Screen Styles are unchanged */
+        /* === NEW AND CORRECTED STYLES FOR QR CODE SCREEN === */
         #qr-screen .payment-header { margin-bottom: 40px; }
-        #qr-screen .payment-header img { max-height: 80px; margin-bottom: 20px; }
+        #qr-screen .payment-header img { 
+            max-height: 100px; /* <-- EDIT THIS to change the top Apex Logo size */
+            margin-bottom: 20px; 
+        }
         #qr-screen .payment-header .total-label { font-size: 1.5em; font-weight: 500; color: #666; }
-        #qr-screen #final-total-display { font-size: 5em; font-weight: bold; line-height: 1; }
+        #qr-screen #final-total-display { 
+            font-size: 4em; /* <-- EDIT THIS to change the final total font size */
+            font-weight: bold; 
+            line-height: 1; 
+        }
         #qr-code-container { display: flex; justify-content: center; align-items: flex-start; gap: 60px; margin-top: 30px; }
         .qr-code-box { display: flex; flex-direction: column; align-items: center; }
         .qr-code-box .payment-logo { height: 60px; margin-bottom: 15px; }
+        .qr-code-box .zelle-payment-logo { 
+            height: 70px; /* <-- EDIT THIS to change the Zelle logo size */
+            margin-bottom: 15px; 
+        }
         
         .footer-logo-strip {
             margin-top: 50px; 
@@ -76,6 +87,7 @@
             max-height: 16vh; 
             opacity: 1;      
         }
+        /* === END OF NEW STYLING === */
 
     </style>
 </head>
@@ -194,17 +206,21 @@
                 new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size });
             } catch (error) { console.error(error); }
 
-            // === THIS IS THE CORRECTED CODE FOR THE ZELLE LOGO ===
-            // Zelle QR Code with Logo
+            // === NEW AND CORRECTED CODE FOR ZELLE QR & LOGO ===
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
-            // Using the zelle-logo.png file as the label
-            zelleBox.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo">';
+            // Giving the Zelle logo its own class so you can style it independently
+            zelleBox.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo zelle-payment-logo">';
+            
+            // Placing the Zelle QR image in its own div to ensure consistent sizing
+            const zelleQrContainer = document.createElement('div');
             const zelleQrImg = document.createElement('img');
             zelleQrImg.src = ZELLE_QR_IMAGE_FILENAME;
             zelleQrImg.width = size;
             zelleQrImg.height = size;
-            zelleBox.appendChild(zelleQrImg);
+            zelleQrContainer.appendChild(zelleQrImg);
+            zelleBox.appendChild(zelleQrContainer);
+
             elements.qrContainer.appendChild(zelleBox);
             // === END OF CORRECTION ===
         }
