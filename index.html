@@ -63,8 +63,18 @@
         #qr-screen #final-total-display { font-size: 4em; font-weight: bold; line-height: 1; }
         #qr-code-container { display: flex; justify-content: center; align-items: flex-start; gap: 60px; margin-top: 30px; }
         .qr-code-box { display: flex; flex-direction: column; align-items: center; }
-        .qr-code-box .payment-logo { height: 60px; margin-bottom: 15px; }
-        .qr-code-box .zelle-payment-logo { height: 90px; margin-bottom: -5px; }
+        
+        /* === NEW AND CORRECTED STYLES FOR ALIGNMENT === */
+        .logo-wrapper {
+            height: 90px; /* A fixed height container for all logos */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .qr-code-box .payment-logo { height: 60px; }
+        .qr-code-box .zelle-payment-logo { height: 90px; }
+        /* === END OF NEW STYLES === */
         
         .footer-logo-strip {
             margin-top: 50px; 
@@ -182,18 +192,21 @@
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `$${total.toFixed(2)}`;
             
-            // === NEW: INDIVIDUAL SIZE CONTROLS ===
-            // To make the scannable parts match, zelleSize will likely need to be slightly larger.
-            const venmoSize = 160; // <-- EDIT THIS for Venmo QR code size
-            const zelleSize = 200; // <-- EDIT THIS for Zelle QR code size
-            // === END OF NEW CONTROLS ===
+            const venmoSize = 160; 
+            const zelleSize = 200; 
 
             // Venmo QR Code
             try {
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
-                venmoBox.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
+                
+                // === NEW: Logo placed in a fixed-height wrapper ===
+                const logoWrapper = document.createElement('div');
+                logoWrapper.className = 'logo-wrapper';
+                logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
+                venmoBox.appendChild(logoWrapper);
+                
                 const venmoQrEl = document.createElement('div');
                 venmoBox.appendChild(venmoQrEl);
                 elements.qrContainer.appendChild(venmoBox);
@@ -203,7 +216,13 @@
             // Zelle QR Code
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
-            zelleBox.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo zelle-payment-logo">';
+            
+            // === NEW: Logo placed in a fixed-height wrapper ===
+            const zelleLogoWrapper = document.createElement('div');
+            zelleLogoWrapper.className = 'logo-wrapper';
+            zelleLogoWrapper.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo zelle-payment-logo">';
+            zelleBox.appendChild(zelleLogoWrapper);
+            
             const zelleQrImg = document.createElement('img');
             zelleQrImg.src = ZELLE_QR_IMAGE_FILENAME;
             zelleQrImg.width = zelleSize;
