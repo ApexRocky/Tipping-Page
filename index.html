@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Apex Auto Pros - Add Tip</title>
-    <!-- Using a reliable CDN link for the QR Code library -->
-    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <!-- Using a standard, reliable CDN for the QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -119,9 +119,7 @@
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- HTML is the same -->
         <div id="input-screen" class="screen active">
             <h1>Enter Invoice Total</h1>
             <input type="number" id="invoice-total-input" placeholder="e.g., 542.50" step="0.01" inputmode="decimal">
@@ -145,15 +143,12 @@
             <button id="back-button" class="button full-width">Start New Payment</button>
         </div>
     </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    
-        // --- CONFIGURATION ---
         const VENMO_USERNAME = "Ian-Stefanski";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
-
-        // --- ELEMENT REFERENCES ---
+        let baseTotal = 0;
+        
         const elements = {
             inputScreen: document.getElementById('input-screen'),
             tipScreen: document.getElementById('tip-screen'),
@@ -169,10 +164,7 @@
             tipAmount20: document.getElementById('tip-20-amount'),
             tipAmount25: document.getElementById('tip-25-amount')
         };
-        
-        let baseTotal = 0;
 
-        // --- FUNCTIONS ---
         function showScreen(screenToShow) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             screenToShow.classList.add('active');
@@ -203,8 +195,7 @@
             } else {
                 tipAmount = baseTotal * parseFloat(tipValue);
             }
-            const finalTotal = baseTotal + tipAmount;
-            generateQrCodes(finalTotal);
+            generateQrCodes(baseTotal + tipAmount);
             showScreen(elements.qrScreen);
         }
         
@@ -213,9 +204,8 @@
             elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
             const size = 128;
 
-            // Venmo
+            // Venmo QR Code
             try {
-                // THIS IS THE CORRECTED LINE - "¬e="
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
@@ -223,13 +213,21 @@
                 const venmoQrEl = document.createElement('div');
                 venmoBox.appendChild(venmoQrEl);
                 elements.qrContainer.appendChild(venmoBox);
-                new QRCode(venmoQrEl, { text: venmoUrl, width: size, height: size, correctLevel : QRCode.CorrectLevel.H });
+                
+                // *** THIS IS THE CRITICAL FIX ***
+                // We are manually setting the error correction level to 'M' (Medium)
+                new QRCode(venmoQrEl, {
+                    text: venmoUrl,
+                    width: size,
+                    height: size,
+                    correctLevel: QRCode.CorrectLevel.M 
+                });
             } catch (error) {
                 console.error("QR Code generation failed:", error);
                 alert("Error: Could not generate Venmo QR Code.");
             }
 
-            // Zelle
+            // Zelle QR Code
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
             zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
@@ -239,11 +237,10 @@
         function resetApp() {
             elements.totalInput.value = '';
             baseTotal = 0;
-            // THIS IS THE SECOND FIX
             showScreen(elements.inputScreen);
         }
 
-        // --- EVENT LISTENERS ---
+        // --- Event Listeners ---
         elements.setTotalBtn.addEventListener('click', startTipping);
         elements.backButton.addEventListener('click', resetApp);
         elements.tipButtonContainer.addEventListener('click', function(event) {
@@ -254,6 +251,5 @@
         });
     });
 </script>
-
 </body>
 </html>
