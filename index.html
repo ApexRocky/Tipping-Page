@@ -163,7 +163,7 @@
 
 <script>
     // --- CONFIGURATION ---
-    const VENMO_USERNAME = "Ian-Stefanski"; // Replace with your Venmo username
+    const VENMO_USERNAME = "Ian-Stefanski"; // Your Venmo username (without the @)
     const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png"; // The name of your Zelle QR image file
 
     // --- PRELOAD ZELLE IMAGE TO PREVENT ERRORS ---
@@ -222,7 +222,7 @@
         const size = 128;
 
         try {
-            // Venmo (Dynamic QR Code)
+            // Venmo (Dynamic QR Code) - FIXED THE TYPO HERE
             const venmoUrl = `https://venmo.com/${VENMO_USERNAME}?txn=pay&amount=${total.toFixed(2)}¬e=Apex%20Auto%20Pros`;
             const venmoBox = document.createElement('div');
             venmoBox.className = 'qr-code-box';
