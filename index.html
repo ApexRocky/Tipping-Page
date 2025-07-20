@@ -7,51 +7,48 @@
     <!-- Using a reliable, standard CDN for the QR Code library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            overflow: hidden; /* Prevents scrolling */
-        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #ffffff; /* Clean white background */
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+            margin: 0;
             -webkit-tap-highlight-color: transparent;
         }
         .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 550px; /* Larger container, good for tablets */
+            max-width: 400px;
             text-align: center;
             box-sizing: border-box;
-            padding: 20px;
         }
-        h2 {
-            font-size: 2em; /* Larger "Add a tip?" text */
-            font-weight: 500;
-            margin: 0 0 40px 0;
-            color: #333;
+        h1, h2 {
+            margin: 0 0 20px 0;
+            color: #1c1c1e;
         }
         .total-display {
-            font-size: 4em; /* Larger total amount */
+            font-size: 2.5em;
             font-weight: bold;
             color: #000;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         .button-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px; /* More space between buttons */
-            margin-bottom: 20px;
+            gap: 15px;
         }
         .button {
-            background-color: #007aff; /* Consistent blue color */
+            background-color: #007aff;
             color: white;
             border: none;
-            border-radius: 12px; /* Rounded corners */
-            padding: 25px 15px; /* Taller buttons */
-            font-size: 1.5em; /* Larger button text */
+            border-radius: 8px;
+            padding: 20px 10px;
+            font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -61,16 +58,14 @@
         }
         .button.full-width {
             grid-column: 1 / -1;
-            margin-bottom: 5px; /* Small space between full-width buttons */
         }
         .percentage {
-            display: block;
-            font-size: 1.2em;
-            margin-bottom: 8px;
+            font-size: 1.4em;
+            margin-bottom: 5px;
         }
         .amount {
-            font-size: 0.8em;
-            opacity: 0.9;
+            font-size: 0.9em;
+            opacity: 0.8;
         }
         .screen {
             display: none;
@@ -79,20 +74,21 @@
             display: block;
         }
         input[type="number"] {
-            font-size: 3em;
+            font-size: 2em;
             width: 100%;
-            padding: 20px;
+            padding: 10px;
             box-sizing: border-box;
             text-align: center;
             border: 2px solid #ccc;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         #qr-code-container {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 40px;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
         }
         .qr-code-box {
             display: flex;
@@ -100,20 +96,19 @@
             align-items: center;
         }
         .qr-code-box canvas, .qr-code-box img {
-            border-radius: 8px;
+            border: 1px solid #eee;
         }
         .qr-code-box p {
-            margin-top: 15px;
-            font-size: 1.5em;
+            margin-top: 10px;
             font-weight: 600;
             color: #333;
         }
         #final-total-display {
-            font-size: 3em;
+            font-size: 2em;
             font-weight: bold;
         }
         #back-button {
-            margin-top: 40px;
+            margin-top: 20px;
             background-color: #6c757d;
         }
     </style>
@@ -122,21 +117,18 @@
     <div class="container">
         <div id="input-screen" class="screen active">
             <h1>Enter Invoice Total</h1>
-            <input type="number" id="invoice-total-input" placeholder="$0.00" step="0.01" inputmode="decimal">
-            <button id="set-total-btn" class="button full-width">Set Total & Show Customer</button>
+            <input type="number" id="invoice-total-input" placeholder="e.g., 542.50" step="0.01" inputmode="decimal">
+            <button id="set-total-btn" class="button">Set Total & Show Customer</button>
         </div>
         <div id="tip-screen" class="screen">
-            <div id="total-display">$0.00</div>
+            <div id="total-display" class="total-display">$0.00</div>
             <h2>Add a tip?</h2>
-            <div id="tip-button-container">
-                <div class="button-grid">
-                    <button class="button" data-tip="0.15"><span class="percentage">15%</span><span class="amount" id="tip-15-amount">$0.00</span></button>
-                    <button class="button" data-tip="0.20"><span class="percentage">20%</span><span class="amount" id="tip-20-amount">$0.00</span></button>
-                    <button class="button" data-tip="0.25"><span class="percentage">25%</span><span class="amount" id="tip-25-amount">$0.00</span></button>
-                </div>
+            <div id="tip-button-container" class="button-grid">
+                <button class="button" data-tip="0.15"><div class="percentage">15%</div><div class="amount" id="tip-15-amount">$0.00</div></button>
+                <button class="button" data-tip="0.20"><div class="percentage">20%</div><div class="amount" id="tip-20-amount">$0.00</div></button>
+                <button class="button" data-tip="0.25"><div class="percentage">25%</div><div class="amount" id="tip-25-amount">$0.00</div></button>
                 <button class="button full-width" data-tip="custom">Custom</button>
-                <!-- "No tip" button is now blue by default -->
-                <button class="button full-width" data-tip="0">No tip</button>
+                <button class="button full-width" style="background-color:#555;" data-tip="0">No tip</button>
             </div>
         </div>
         <div id="qr-screen" class="screen">
@@ -153,6 +145,7 @@
         const VENMO_USERNAME = "Ian-Stefanski";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
         
+        // --- ELEMENT REFERENCES ---
         let baseTotal = 0;
         const elements = {
             inputScreen: document.getElementById('input-screen'),
@@ -172,6 +165,7 @@
             }
         };
 
+        // --- FUNCTIONS ---
         function showScreen(screenToShow) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             screenToShow.classList.add('active');
@@ -209,10 +203,11 @@
         function generateQrCodes(total) {
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
-            const size = 160; // Slightly larger QR codes
+            const size = 128;
 
-            // Venmo
+            // Venmo QR Code (Simplified to a static profile link)
             try {
+                // *** THIS IS THE SIMPLIFIED CODE ***
                 const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
                 const venmoBox = document.createElement('div');
                 venmoBox.className = 'qr-code-box';
@@ -227,10 +222,11 @@
                     height: size,
                 });
             } catch (error) {
-                console.error("Venmo QR Code generation failed:", error);
+                console.error("QR Code generation failed:", error);
+                alert("An error occurred creating the Venmo QR code.");
             }
 
-            // Zelle
+            // Zelle QR Code
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
             zelleBox.innerHTML = `<p>Zelle</p><img src="${ZELLE_QR_IMAGE_FILENAME}" width="${size}" height="${size}" alt="Zelle QR Code">`;
@@ -243,7 +239,7 @@
             showScreen(elements.inputScreen);
         }
 
-        // --- Event Listeners ---
+        // --- EVENT LISTENERS ---
         elements.setTotalBtn.addEventListener('click', startTipping);
         elements.backButton.addEventListener('click', resetApp);
         elements.tipButtonContainer.addEventListener('click', function(event) {
