@@ -10,12 +10,11 @@
         html, body {
             height: 100%;
             margin: 0;
-            overflow: hidden; /* Prevents scrolling */
+            overflow: hidden; 
         }
         body {
-            /* Using Gotham font with good fallbacks */
             font-family: "Gotham", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #ffffff; /* Clean white background for a seamless look */
+            background-color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,26 +22,26 @@
         }
         .container {
             width: 100%;
-            max-width: 550px; /* Wider container for a tablet-friendly layout */
+            max-width: 70vw; /* NEW: Responsive width for tablets */
             text-align: center;
             box-sizing: border-box;
             padding: 20px;
         }
-        /* Styling for the first screen remains the same */
+        /* First screen styles remain unchanged */
         #input-screen h1 { font-size: 2.5em; font-weight: 600; }
         #input-screen input { font-size: 3em; width: 100%; padding: 20px; box-sizing: border-box; text-align: center; border: 2px solid #ccc; border-radius: 12px; margin-bottom: 30px; }
         #input-screen .button { width: 100%; padding: 25px; font-size: 1.5em; }
         
         /* Redesigned Tip Screen */
         #tip-screen .total-display {
-            font-size: 5em; /* Largest element */
+            font-size: 2.5em; /* NEW: Matches size of h2 */
             font-weight: bold;
             color: #000;
-            margin-bottom: 25px;
+            margin-bottom: 80px; /* NEW: Pushes the total to the top, away from other content */
         }
         #tip-screen h2 {
-            font-size: 2.2em;
-            font-weight: bold; /* Bolded "Add a tip?" text */
+            font-size: 2.5em; /* NEW: Matches size of the total */
+            font-weight: bold;
             margin: 0 0 35px 0;
             color: #333;
         }
@@ -53,7 +52,7 @@
             margin-bottom: 20px;
         }
         .button {
-            background-color: #007aff; /* Consistent blue color for all buttons */
+            background-color: #007aff;
             color: white;
             border: none;
             border-radius: 12px;
@@ -67,9 +66,9 @@
             background-color: #0056b3;
         }
         .button.full-width {
-            display: block; /* Makes the button take up its own line */
+            display: block;
             width: 100%;
-            margin-bottom: 20px; /* Space between full-width buttons */
+            margin-bottom: 20px;
         }
         .percentage {
             display: block;
@@ -100,14 +99,14 @@
 </head>
 <body>
     <div class="container">
-        <!-- Screen 1: Enter Total (No design changes as requested) -->
+        <!-- Screen 1: Enter Total -->
         <div id="input-screen" class="screen active">
             <h1>Enter Invoice Total</h1>
             <input type="number" id="invoice-total-input" placeholder="$0.00" step="0.01" inputmode="decimal">
             <button id="set-total-btn" class="button full-width">Set Total & Show Customer</button>
         </div>
 
-        <!-- Screen 2: Add a Tip (Redesigned) -->
+        <!-- Screen 2: Add a Tip -->
         <div id="tip-screen" class="screen">
             <div id="total-display">$0.00</div>
             <h2>Add a tip?</h2>
@@ -117,7 +116,6 @@
                     <button class="button" data-tip="0.20"><span class="percentage">20%</span><span class="amount" id="tip-20-amount">$0.00</span></button>
                     <button class="button" data-tip="0.25"><span class="percentage">25%</span><span class="amount" id="tip-25-amount">$0.00</span></button>
                 </div>
-                <!-- Full-width buttons are now outside the grid -->
                 <button class="button full-width" data-tip="custom">Custom</button>
                 <button class="button full-width" data-tip="0">No tip</button>
             </div>
@@ -194,7 +192,7 @@
         function generateQrCodes(total) {
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `Total to Send: $${total.toFixed(2)}`;
-            const size = 160; // Slightly larger QR codes
+            const size = 160;
 
             // Venmo
             try {
