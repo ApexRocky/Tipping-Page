@@ -102,7 +102,6 @@
             </div>
             <div id="tip-button-container">
                 <div class="button-grid">
-                    <!-- === NEW PERCENTAGES === -->
                     <button class="button" data-tip="0.10"><span class="percentage">10%</span><span class="amount" id="tip-10-amount">$0.00</span></button>
                     <button class="button" data-tip="0.15"><span class="percentage">15%</span><span class="amount" id="tip-15-amount">$0.00</span></button>
                     <button class="button" data-tip="0.20"><span class="percentage">20%</span><span class="amount" id="tip-20-amount">$0.00</span></button>
@@ -133,7 +132,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const VENMO_USERNAME = "Ian-Stefanski";
+        // === NEW: Define the filename for your static Venmo QR code image ===
+        const VENMO_QR_IMAGE_FILENAME = "venmo-qr.jpeg";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
         
         let baseTotal = 0;
@@ -147,7 +147,6 @@
             qrContainer: document.getElementById('qr-code-container'),
             setTotalBtn: document.getElementById('set-total-btn'),
             tipButtonContainer: document.getElementById('tip-button-container'),
-            // === NEW JAVASCRIPT REFERENCES ===
             tipAmounts: { 
                 '10': document.getElementById('tip-10-amount'), 
                 '15': document.getElementById('tip-15-amount'), 
@@ -168,7 +167,6 @@
             }
             baseTotal = inputVal;
             elements.totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
-            // === NEW CALCULATIONS ===
             elements.tipAmounts['10'].innerText = `$${(baseTotal * 0.10).toFixed(2)}`;
             elements.tipAmounts['15'].innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
             elements.tipAmounts['20'].innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
@@ -194,25 +192,25 @@
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `$${total.toFixed(2)}`;
             
-            const venmoSize = 160; 
-            const zelleSize = 200; 
+            const venmoSize = 190; 
+            const zelleSize = 190; 
 
-            // Venmo QR Code
-            try {
-                const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
-                const venmoBox = document.createElement('div');
-                venmoBox.className = 'qr-code-box';
-                
-                const logoWrapper = document.createElement('div');
-                logoWrapper.className = 'logo-wrapper';
-                logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
-                venmoBox.appendChild(logoWrapper);
-                
-                const venmoQrEl = document.createElement('div');
-                venmoBox.appendChild(venmoQrEl);
-                elements.qrContainer.appendChild(venmoBox);
-                new QRCode(venmoQrEl, { text: venmoUrl, width: venmoSize, height: venmoSize });
-            } catch (error) { console.error(error); }
+            // === NEW: Venmo QR code now uses a static JPEG image ===
+            const venmoBox = document.createElement('div');
+            venmoBox.className = 'qr-code-box';
+            
+            const logoWrapper = document.createElement('div');
+            logoWrapper.className = 'logo-wrapper';
+            logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
+            venmoBox.appendChild(logoWrapper);
+            
+            const venmoQrImg = document.createElement('img');
+            venmoQrImg.src = VENMO_QR_IMAGE_FILENAME; // Using the new filename
+            venmoQrImg.width = venmoSize;
+            venmoQrImg.height = venmoSize;
+            venmoBox.appendChild(venmoQrImg);
+            elements.qrContainer.appendChild(venmoBox);
+            // === END OF CHANGE ===
 
             // Zelle QR Code
             const zelleBox = document.createElement('div');
