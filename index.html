@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Apex Auto Pros - Add Tip</title>
-    <!-- The QR Code library is no longer needed for Venmo, but kept for potential future use -->
+    <!-- Using a reliable, standard CDN for the QR Code library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         html, body {
@@ -102,9 +102,10 @@
             </div>
             <div id="tip-button-container">
                 <div class="button-grid">
+                    <!-- === NEW PERCENTAGES === -->
+                    <button class="button" data-tip="0.10"><span class="percentage">10%</span><span class="amount" id="tip-10-amount">$0.00</span></button>
                     <button class="button" data-tip="0.15"><span class="percentage">15%</span><span class="amount" id="tip-15-amount">$0.00</span></button>
                     <button class="button" data-tip="0.20"><span class="percentage">20%</span><span class="amount" id="tip-20-amount">$0.00</span></button>
-                    <button class="button" data-tip="0.25"><span class="percentage">25%</span><span class="amount" id="tip-25-amount">$0.00</span></button>
                 </div>
                 <button class="button full-width" data-tip="custom">Custom Tip Amount</button>
                 <button class="button full-width" data-tip="0">No Tip</button>
@@ -132,8 +133,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // === NEW: Define the filename for your static Venmo QR code image ===
-        const VENMO_QR_IMAGE_FILENAME = "venmo-qr.jpeg"; // Make sure this matches your uploaded file exactly
+        const VENMO_USERNAME = "Ian-Stefanski";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
         
         let baseTotal = 0;
@@ -147,7 +147,12 @@
             qrContainer: document.getElementById('qr-code-container'),
             setTotalBtn: document.getElementById('set-total-btn'),
             tipButtonContainer: document.getElementById('tip-button-container'),
-            tipAmounts: { '15': document.getElementById('tip-15-amount'), '20': document.getElementById('tip-20-amount'), '25': document.getElementById('tip-25-amount') }
+            // === NEW JAVASCRIPT REFERENCES ===
+            tipAmounts: { 
+                '10': document.getElementById('tip-10-amount'), 
+                '15': document.getElementById('tip-15-amount'), 
+                '20': document.getElementById('tip-20-amount') 
+            }
         };
 
         function showScreen(screenToShow) {
@@ -163,9 +168,10 @@
             }
             baseTotal = inputVal;
             elements.totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
+            // === NEW CALCULATIONS ===
+            elements.tipAmounts['10'].innerText = `$${(baseTotal * 0.10).toFixed(2)}`;
             elements.tipAmounts['15'].innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
             elements.tipAmounts['20'].innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
-            elements.tipAmounts['25'].innerText = `$${(baseTotal * 0.25).toFixed(2)}`;
             showScreen(elements.tipScreen);
         }
 
@@ -188,25 +194,25 @@
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `$${total.toFixed(2)}`;
             
-            const venmoSize = 190; // You can adjust the size of the Venmo QR code here
-            const zelleSize = 190; // You can adjust the size of the Zelle QR code here
+            const venmoSize = 160; 
+            const zelleSize = 200; 
 
-            // === NEW: Venmo QR Code now uses a static image ===
-            const venmoBox = document.createElement('div');
-            venmoBox.className = 'qr-code-box';
-            
-            const logoWrapper = document.createElement('div');
-            logoWrapper.className = 'logo-wrapper';
-            logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
-            venmoBox.appendChild(logoWrapper);
-            
-            const venmoQrImg = document.createElement('img');
-            venmoQrImg.src = VENMO_QR_IMAGE_FILENAME;
-            venmoQrImg.width = venmoSize;
-            venmoQrImg.height = venmoSize;
-            venmoBox.appendChild(venmoQrImg);
-            elements.qrContainer.appendChild(venmoBox);
-            // === END OF CHANGE ===
+            // Venmo QR Code
+            try {
+                const venmoUrl = `https://venmo.com/${VENMO_USERNAME}`;
+                const venmoBox = document.createElement('div');
+                venmoBox.className = 'qr-code-box';
+                
+                const logoWrapper = document.createElement('div');
+                logoWrapper.className = 'logo-wrapper';
+                logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
+                venmoBox.appendChild(logoWrapper);
+                
+                const venmoQrEl = document.createElement('div');
+                venmoBox.appendChild(venmoQrEl);
+                elements.qrContainer.appendChild(venmoBox);
+                new QRCode(venmoQrEl, { text: venmoUrl, width: venmoSize, height: venmoSize });
+            } catch (error) { console.error(error); }
 
             // Zelle QR Code
             const zelleBox = document.createElement('div');
