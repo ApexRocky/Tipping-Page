@@ -74,7 +74,7 @@
         /* === RULE TO MANUALLY ADJUST ZELLE QR CODE ALIGNMENT === */
         .zelle-qr-image {
             position: relative;
-            top: -15px; /* <-- EDIT THIS to align the Zelle QR code vertically. More negative = UP, Positive = DOWN */
+            top: 15px; /* <-- EDIT THIS to align the Zelle QR code vertically. More negative = UP, Positive = DOWN */
         }
 
         .footer-logo-strip {
@@ -199,7 +199,7 @@
             
             // You can now control the QR code sizes individually.
             const venmoSize = 190; // <-- EDIT THIS for Venmo QR code size
-            const zelleSize = 190; // <-- EDIT THIS for Zelle QR code size
+            const zelleSize = 210; // <-- EDIT THIS for Zelle QR code size
 
             // Venmo QR Code (using static JPEG)
             const venmoBox = document.createElement('div');
