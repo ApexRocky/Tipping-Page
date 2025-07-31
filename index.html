@@ -71,6 +71,12 @@
             margin-bottom: 0px; 
         }
 
+        /* === RULE TO MANUALLY ADJUST ZELLE QR CODE ALIGNMENT === */
+        .zelle-qr-image {
+            position: relative;
+            top: -15px; /* <-- EDIT THIS to align the Zelle QR code vertically. More negative = UP, Positive = DOWN */
+        }
+
         .footer-logo-strip {
             margin-top: 50px; 
             display: flex;
@@ -132,7 +138,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // === NEW: Define the filename for your static Venmo QR code image ===
         const VENMO_QR_IMAGE_FILENAME = "venmo-qr.jpeg";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
         
@@ -192,10 +197,11 @@
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `$${total.toFixed(2)}`;
             
-            const venmoSize = 190; 
-            const zelleSize = 190; 
+            // You can now control the QR code sizes individually.
+            const venmoSize = 190; // <-- EDIT THIS for Venmo QR code size
+            const zelleSize = 190; // <-- EDIT THIS for Zelle QR code size
 
-            // === NEW: Venmo QR code now uses a static JPEG image ===
+            // Venmo QR Code (using static JPEG)
             const venmoBox = document.createElement('div');
             venmoBox.className = 'qr-code-box';
             
@@ -205,12 +211,11 @@
             venmoBox.appendChild(logoWrapper);
             
             const venmoQrImg = document.createElement('img');
-            venmoQrImg.src = VENMO_QR_IMAGE_FILENAME; // Using the new filename
+            venmoQrImg.src = VENMO_QR_IMAGE_FILENAME;
             venmoQrImg.width = venmoSize;
             venmoQrImg.height = venmoSize;
             venmoBox.appendChild(venmoQrImg);
             elements.qrContainer.appendChild(venmoBox);
-            // === END OF CHANGE ===
 
             // Zelle QR Code
             const zelleBox = document.createElement('div');
@@ -222,6 +227,7 @@
             zelleBox.appendChild(zelleLogoWrapper);
             
             const zelleQrImg = document.createElement('img');
+            zelleQrImg.className = 'zelle-qr-image'; 
             zelleQrImg.src = ZELLE_QR_IMAGE_FILENAME;
             zelleQrImg.width = zelleSize;
             zelleQrImg.height = zelleSize;
