@@ -45,6 +45,11 @@
 
         .screen { display: none; }
         .screen.active { display: block; }
+        
+        /* NEW: Hides the non-active tip grid */
+        .button-grid.hidden {
+            display: none;
+        }
 
         .logo-container {
             margin-top: 30px; 
@@ -71,10 +76,9 @@
             margin-bottom: 0px; 
         }
 
-        /* === RULE TO MANUALLY ADJUST ZELLE QR CODE ALIGNMENT === */
         .zelle-qr-image {
             position: relative;
-            top: 7px; /* <-- EDIT THIS to align the Zelle QR code vertically. More negative = UP, Positive = DOWN */
+            top: 7px; 
         }
 
         .footer-logo-strip {
@@ -107,11 +111,19 @@
                 <h2>Add a Tip</h2>
             </div>
             <div id="tip-button-container">
-                <div class="button-grid">
+                <!-- Standard Tip Buttons (Default) -->
+                <div id="standard-tips" class="button-grid">
                     <button class="button" data-tip="0.10"><span class="percentage">10%</span><span class="amount" id="tip-10-amount">$0.00</span></button>
                     <button class="button" data-tip="0.15"><span class="percentage">15%</span><span class="amount" id="tip-15-amount">$0.00</span></button>
                     <button class="button" data-tip="0.20"><span class="percentage">20%</span><span class="amount" id="tip-20-amount">$0.00</span></button>
                 </div>
+                <!-- High-Ticket Tip Buttons (Hidden by default) -->
+                <div id="high-ticket-tips" class="button-grid hidden">
+                    <button class="button" data-tip="0.05"><span class="percentage">5%</span><span class="amount" id="tip-5-amount">$0.00</span></button>
+                    <button class="button" data-tip="0.10"><span class="percentage">10%</span><span class="amount" id="tip-10-high-amount">$0.00</span></button>
+                    <button class="button" data-tip="0.15"><span class="percentage">15%</span><span class="amount" id="tip-15-high-amount">$0.00</span></button>
+                </div>
+                
                 <button class="button full-width" data-tip="custom">Custom Tip Amount</button>
                 <button class="button full-width" data-tip="0">No Tip</button>
             </div>
@@ -152,10 +164,19 @@
             qrContainer: document.getElementById('qr-code-container'),
             setTotalBtn: document.getElementById('set-total-btn'),
             tipButtonContainer: document.getElementById('tip-button-container'),
+            
+            // Tip Button Grids
+            standardTips: document.getElementById('standard-tips'),
+            highTicketTips: document.getElementById('high-ticket-tips'),
+            
+            // Tip Amount Spans
             tipAmounts: { 
-                '10': document.getElementById('tip-10-amount'), 
-                '15': document.getElementById('tip-15-amount'), 
-                '20': document.getElementById('tip-20-amount') 
+                'std-10': document.getElementById('tip-10-amount'), 
+                'std-15': document.getElementById('tip-15-amount'), 
+                'std-20': document.getElementById('tip-20-amount'),
+                'high-5': document.getElementById('tip-5-amount'),
+                'high-10': document.getElementById('tip-10-high-amount'),
+                'high-15': document.getElementById('tip-15-high-amount'),
             }
         };
 
@@ -172,9 +193,26 @@
             }
             baseTotal = inputVal;
             elements.totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
-            elements.tipAmounts['10'].innerText = `$${(baseTotal * 0.10).toFixed(2)}`;
-            elements.tipAmounts['15'].innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
-            elements.tipAmounts['20'].innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
+
+            // === NEW LOGIC TO SHOW THE CORRECT TIP BUTTONS ===
+            if (baseTotal >= 700) {
+                // Show 5%, 10%, 15%
+                elements.highTicketTips.classList.remove('hidden');
+                elements.standardTips.classList.add('hidden');
+                // Calculate high-ticket amounts
+                elements.tipAmounts['high-5'].innerText = `$${(baseTotal * 0.05).toFixed(2)}`;
+                elements.tipAmounts['high-10'].innerText = `$${(baseTotal * 0.10).toFixed(2)}`;
+                elements.tipAmounts['high-15'].innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
+            } else {
+                // Show 10%, 15%, 20%
+                elements.standardTips.classList.remove('hidden');
+                elements.highTicketTips.classList.add('hidden');
+                // Calculate standard amounts
+                elements.tipAmounts['std-10'].innerText = `$${(baseTotal * 0.10).toFixed(2)}`;
+                elements.tipAmounts['std-15'].innerText = `$${(baseTotal * 0.15).toFixed(2)}`;
+                elements.tipAmounts['std-20'].innerText = `$${(baseTotal * 0.20).toFixed(2)}`;
+            }
+            
             showScreen(elements.tipScreen);
         }
 
@@ -197,19 +235,16 @@
             elements.qrContainer.innerHTML = ''; 
             elements.finalTotalDisplay.innerText = `$${total.toFixed(2)}`;
             
-            // You can now control the QR code sizes individually.
-            const venmoSize = 190; // <-- EDIT THIS for Venmo QR code size
-            const zelleSize = 210; // <-- EDIT THIS for Zelle QR code size
+            const venmoSize = 190; 
+            const zelleSize = 210; 
 
-            // Venmo QR Code (using static JPEG)
+            // Venmo QR Code
             const venmoBox = document.createElement('div');
             venmoBox.className = 'qr-code-box';
-            
             const logoWrapper = document.createElement('div');
             logoWrapper.className = 'logo-wrapper';
             logoWrapper.innerHTML = '<img src="venmo-logo.png" alt="Pay with Venmo" class="payment-logo">';
             venmoBox.appendChild(logoWrapper);
-            
             const venmoQrImg = document.createElement('img');
             venmoQrImg.src = VENMO_QR_IMAGE_FILENAME;
             venmoQrImg.width = venmoSize;
@@ -220,12 +255,10 @@
             // Zelle QR Code
             const zelleBox = document.createElement('div');
             zelleBox.className = 'qr-code-box';
-            
             const zelleLogoWrapper = document.createElement('div');
             zelleLogoWrapper.className = 'logo-wrapper zelle-logo-wrapper';
             zelleLogoWrapper.innerHTML = '<img src="zelle-logo.png" alt="Pay with Zelle" class="payment-logo zelle-payment-logo">';
             zelleBox.appendChild(zelleLogoWrapper);
-            
             const zelleQrImg = document.createElement('img');
             zelleQrImg.className = 'zelle-qr-image'; 
             zelleQrImg.src = ZELLE_QR_IMAGE_FILENAME;
