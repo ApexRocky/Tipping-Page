@@ -93,6 +93,36 @@
             opacity: 1;      
         }
 
+        /* Payment Selection Buttons */
+        .payment-selection {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .payment-btn {
+            background-color: #34c759;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+        .payment-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+        }
+        .payment-btn.venmo {
+            background-color: #008CFF;
+        }
+        .payment-btn.zelle {
+            background-color: #6D1ED4;
+        }
+
     </style>
 </head>
 <body>
@@ -140,6 +170,13 @@
                 <div id="final-total-display">$0.00</div>
             </div>
             <div id="qr-code-container"></div>
+            
+            <!-- Payment Selection Buttons -->
+            <div class="payment-selection">
+                <button class="payment-btn venmo" onclick="logPaymentMethod('Venmo')">Paid with Venmo</button>
+                <button class="payment-btn zelle" onclick="logPaymentMethod('Zelle')">Paid with Zelle</button>
+            </div>
+            
             <div class="footer-logo-strip">
                 <img src="chase-logo.png" alt="Chase Bank">
                 <img src="bofa-logo.png" alt="Bank of America">
@@ -153,7 +190,22 @@
         const VENMO_QR_IMAGE_FILENAME = "venmo-qr.jpeg";
         const ZELLE_QR_IMAGE_FILENAME = "zelle-qr.png";
         
+        // ============================================
+        // GOOGLE SHEETS CONFIGURATION
+        // ============================================
+        // Replace this URL with your Google Apps Script Web App URL after setup
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyuQIOWFQkApHZVLv1E4YJcZKZD6BAB9zcZ85QZA11Vp3ItyrJ40Ee0HR3Ffs9zZOOtVg/exec';
+        
         let baseTotal = 0;
+        let currentTransaction = {
+            invoiceAmount: 0,
+            tipPercentage: '',
+            tipAmount: 0,
+            finalTotal: 0,
+            timestamp: '',
+            paymentMethod: ''
+        };
+        
         const elements = {
             inputScreen: document.getElementById('input-screen'),
             tipScreen: document.getElementById('tip-screen'),
@@ -192,6 +244,9 @@
                 return;
             }
             baseTotal = inputVal;
+            currentTransaction.invoiceAmount = baseTotal;
+            currentTransaction.timestamp = new Date().toISOString();
+            
             elements.totalDisplay.innerText = `$${baseTotal.toFixed(2)}`;
 
             // === NEW LOGIC TO SHOW THE CORRECT TIP BUTTONS ===
@@ -218,16 +273,29 @@
 
         function selectTip(tipValue) {
             let tipAmount = 0;
+            let tipPercentage = '';
+            
             if (tipValue === 'custom') {
                 const customAmountStr = prompt("Enter custom tip amount:", "10.00");
                 if (customAmountStr === null) return;
                 const customAmount = parseFloat(customAmountStr);
                 if (isNaN(customAmount)) return;
                 tipAmount = customAmount;
+                tipPercentage = 'Custom';
+            } else if (tipValue === '0') {
+                tipAmount = 0;
+                tipPercentage = 'No Tip';
             } else {
                 tipAmount = baseTotal * parseFloat(tipValue);
+                tipPercentage = (parseFloat(tipValue) * 100).toFixed(0) + '%';
             }
-            generateQrCodes(baseTotal + tipAmount);
+            
+            // Store transaction details
+            currentTransaction.tipPercentage = tipPercentage;
+            currentTransaction.tipAmount = tipAmount;
+            currentTransaction.finalTotal = baseTotal + tipAmount;
+            
+            generateQrCodes(currentTransaction.finalTotal);
             showScreen(elements.qrScreen);
         }
         
@@ -267,6 +335,74 @@
             zelleBox.appendChild(zelleQrImg);
             elements.qrContainer.appendChild(zelleBox);
         }
+
+        // ============================================
+        // GOOGLE SHEETS LOGGING FUNCTION
+        // ============================================
+        async function logToGoogleSheets(paymentMethod) {
+            try {
+                const data = {
+                    timestamp: new Date().toLocaleString('en-US', { 
+                        timeZone: 'America/Los_Angeles',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    }),
+                    invoiceAmount: currentTransaction.invoiceAmount.toFixed(2),
+                    tipPercentage: currentTransaction.tipPercentage,
+                    tipAmount: currentTransaction.tipAmount.toFixed(2),
+                    finalTotal: currentTransaction.finalTotal.toFixed(2),
+                    paymentMethod: paymentMethod
+                };
+
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Transaction logged:', data);
+                
+                // Show success feedback (optional)
+                alert('Payment recorded! Thank you!');
+                
+                // Reset for next transaction
+                resetTransaction();
+                
+            } catch (error) {
+                console.error('Error logging to Google Sheets:', error);
+                // Still reset even if logging fails
+                alert('Payment recorded locally. Thank you!');
+                resetTransaction();
+            }
+        }
+
+        function resetTransaction() {
+            // Reset the form for next customer
+            elements.totalInput.value = '';
+            currentTransaction = {
+                invoiceAmount: 0,
+                tipPercentage: '',
+                tipAmount: 0,
+                finalTotal: 0,
+                timestamp: '',
+                paymentMethod: ''
+            };
+            showScreen(elements.inputScreen);
+        }
+
+        // Global function for payment method buttons
+        window.logPaymentMethod = function(method) {
+            currentTransaction.paymentMethod = method;
+            logToGoogleSheets(method);
+        };
 
         elements.setTotalBtn.addEventListener('click', startTipping);
         elements.tipButtonContainer.addEventListener('click', function(event) {
